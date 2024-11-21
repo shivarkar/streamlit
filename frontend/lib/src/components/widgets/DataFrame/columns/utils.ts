@@ -120,6 +120,7 @@ const BOOLEAN_FALSE_VALUES = ["false", "f", "no", "n", "off", "0"]
  */
 interface ErrorCell extends TextCell {
   readonly isError: true
+  readonly errorDetails: string
 }
 
 /**
@@ -132,14 +133,15 @@ interface ErrorCell extends TextCell {
  * @return a read-only GridCell object that can be used by glide-data-grid.
  */
 export function getErrorCell(errorMsg: string, errorDetails = ""): ErrorCell {
-  errorMsg = `⚠️ ${errorMsg}`
   return {
     kind: GridCellKind.Text,
     readonly: true,
     allowOverlay: true,
-    data: errorMsg + (errorDetails ? `\n\n${errorDetails}\n` : ""),
+    data: errorMsg,
     displayData: errorMsg,
+    errorDetails: errorDetails,
     isError: true,
+    style: "faded",
   } as ErrorCell
 }
 
