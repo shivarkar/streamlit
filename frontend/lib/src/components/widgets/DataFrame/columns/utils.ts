@@ -118,7 +118,7 @@ const BOOLEAN_FALSE_VALUES = ["false", "f", "no", "n", "off", "0"]
 /**
  * Interface used for indicating if a cell contains an error.
  */
-interface ErrorCell extends TextCell {
+export interface ErrorCell extends TextCell {
   readonly isError: true
   readonly errorDetails: string
 }

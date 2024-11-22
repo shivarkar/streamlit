@@ -123,9 +123,7 @@ function useCustomRenderer(columns: BaseColumn[]): CustomRendererReturn {
       if (isErrorCell(cell)) {
         // If the cell is an error cell, we draw a red indicator in the top right corner of the cell.
         drawAttentionIndicator(ctx, rect, theme)
-      }
-
-      if (isMissingValueCell(cell) && colPos < columns.length) {
+      } else if (isMissingValueCell(cell) && colPos < columns.length) {
         const column = columns[colPos]
 
         // We explicitly ignore some cell types here (e.g. checkbox, progress...) since
