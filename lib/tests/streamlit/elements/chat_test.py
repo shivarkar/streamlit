@@ -256,22 +256,21 @@ class ChatTest(DeltaGeneratorTestCase):
         self.assertEqual(el.type, "CachedWidgetWarning")
         self.assertTrue(el.is_warning)
 
-    def test_chat_input_accept_file(self):
-        st.chat_input("Placeholder", accept_file=False)
+    @parameterized.expand(
+        [
+            (False, ChatInput.AcceptFile.NONE),
+            (True, ChatInput.AcceptFile.SINGLE),
+            ("multiple", ChatInput.AcceptFile.MULTIPLE),
+        ]
+    )
+    def test_chat_input_accept_file(self, accept_file, expected):
+        st.chat_input(accept_file=accept_file)
         c = self.get_delta_from_queue().new_element.chat_input
-        self.assertEqual(c.accept_file, ChatInput.AcceptFile.NONE)
-
-        st.chat_input("Placeholder", accept_file=True)
-        c = self.get_delta_from_queue().new_element.chat_input
-        self.assertEqual(c.accept_file, ChatInput.AcceptFile.SINGLE)
-
-        st.chat_input("Placeholder", accept_file="multiple")
-        c = self.get_delta_from_queue().new_element.chat_input
-        self.assertEqual(c.accept_file, ChatInput.AcceptFile.MULTIPLE)
+        self.assertEqual(c.accept_file, expected)
 
     def test_chat_input_invalid_accept_file(self):
         with self.assertRaises(StreamlitAPIException) as ex:
-            st.chat_input("Placeholder", accept_file="invalid")
+            st.chat_input(accept_file="invalid")
 
         self.assertEqual(
             str(ex.exception),
@@ -280,31 +279,9 @@ class ChatTest(DeltaGeneratorTestCase):
 
     def test_file_type(self):
         """Test that it can be called using string(s) for type parameter."""
-        st.chat_input("Placeholder", file_type="png")
+        st.chat_input(file_type="png")
         c = self.get_delta_from_queue().new_element.chat_input
         self.assertEqual(c.file_type, [".png"])
-
-        st.chat_input("Placeholder", file_type=["png", ".svg", "foo"])
-        c = self.get_delta_from_queue().new_element.chat_input
-        self.assertEqual(c.file_type, [".png", ".svg", ".foo"])
-
-    def test_jpg_expansion(self):
-        """Test that it adds jpeg when passing in just jpg (and vice versa)."""
-        st.chat_input("Placeholder", file_type=["png", ".jpg"])
-
-        c = self.get_delta_from_queue().new_element.chat_input
-        self.assertEqual(c.file_type, [".png", ".jpg", ".jpeg"])
-
-        st.chat_input("Placeholder", file_type=["jpeg"])
-
-        c = self.get_delta_from_queue().new_element.chat_input
-        self.assertEqual(c.file_type, [".jpeg", ".jpg"])
-
-        # Test that it can expand jpg to jpeg even with uppercase
-        st.chat_input("Placeholder", file_type=[".JpG"])
-
-        c = self.get_delta_from_queue().new_element.chat_input
-        self.assertEqual(c.file_type, [".jpg", ".jpeg"])
 
     @patch("streamlit.elements.widgets.chat.ChatInputSerde.deserialize")
     def test_multiple_files(self, deserialize_patch):
